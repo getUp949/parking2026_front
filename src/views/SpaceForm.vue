@@ -4,17 +4,6 @@
       <h3>{{ isEdit ? '编辑车位' : '新增车位' }}</h3>
       
       <form @submit.prevent="handleSubmit">
-        <!-- 所属小区 -->
-        <div class="form-item">
-          <label>所属小区 <span class="required">*</span></label>
-          <select v-model="form.communityId" required :disabled="isEdit">
-            <option value="">请选择小区</option>
-            <option v-for="community in communityList" :key="community.id" :value="community.id">
-              {{ community.name }}
-            </option>
-          </select>
-        </div>
-        
         <!-- 所属区域 -->
         <div class="form-item">
           <label>所属区域 <span class="required">*</span></label>
@@ -75,29 +64,15 @@ import { createSpace, updateSpace } from '@/utils/api'
 
 export default {
   name: 'SpaceForm',
-  // 接收父组件传递的数据
   props: {
-    // 要编辑的车位数据，null表示新增
     spaceData: {
       type: Object,
       default: null
     },
-    // 小区列表（用于下拉选择）
-    communityList: {
-      type: Array,
-      default: () => []
-    },
-    // 区域列表（用于下拉选择）
     areaList: {
       type: Array,
       default: () => []
     },
-    // 当前选中的小区ID
-    selectedCommunityId: {
-      type: [String, Number],
-      default: ''
-    },
-    // 是否是编辑模式
     isEdit: {
       type: Boolean,
       default: false
@@ -105,36 +80,28 @@ export default {
   },
   data() {
     return {
-      // 表单数据
       form: {
-        communityId: '',
         areaId: '',
         spaceNumber: '',
         position: '',
         status: 0
       },
-      // 加载状态
       loading: false
     }
   },
-  // 监听props变化，初始化表单数据
   watch: {
     spaceData: {
       immediate: true,
       handler(newVal) {
         if (newVal) {
-          // 编辑模式，填充表单数据
           this.form = {
-            communityId: newVal.communityId || '',
             areaId: newVal.areaId || '',
             spaceNumber: newVal.spaceNumber || '',
             position: newVal.position || '',
             status: newVal.status !== undefined ? newVal.status : 0
           }
         } else {
-          // 新增模式，使用父组件传入的默认小区和区域
           this.form = {
-            communityId: this.selectedCommunityId || (this.communityList.length > 0 ? this.communityList[0].id : ''),
             areaId: this.areaList.length > 0 ? this.areaList[0].id : '',
             spaceNumber: '',
             position: '',
@@ -142,27 +109,14 @@ export default {
           }
         }
       }
-    },
-    // 监听选中小区变化，重新设置区域
-    selectedCommunityId: {
-      immediate: true,
-      handler(newVal) {
-        if (!this.spaceData && newVal && this.areaList.length > 0) {
-          // 新增模式且小区改变时，自动选择该小区的第一个区域
-          this.form.areaId = this.areaList[0].id
-        }
-      }
     }
   },
   methods: {
-    // 关闭弹窗
     handleClose() {
       this.$emit('close')
     },
     
-    // 提交表单
     handleSubmit() {
-      // 验证必填字段
       if (!this.form.areaId || !this.form.spaceNumber) {
         alert('请填写必填字段')
         return
@@ -170,7 +124,6 @@ export default {
       
       this.loading = true
       
-      // 根据是否为编辑模式调用不同的API
       const promise = this.isEdit
         ? updateSpace({
             id: this.spaceData.id,
@@ -188,7 +141,6 @@ export default {
         .then(res => {
           if (res.code === 200) {
             alert(this.isEdit ? '更新成功' : '创建成功')
-            // 通知父组件提交成功
             this.$emit('success')
           } else {
             alert(res.message || '操作失败')

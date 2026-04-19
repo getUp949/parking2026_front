@@ -276,20 +276,18 @@ export default api
 
 /**
  * 获取区域列表
- * @param {number} communityId - 小区ID
  * @returns {Promise} 返回区域列表
  */
-export function getAreaList(communityId) {
-  return api.get(`/parking/area/list/${communityId}`)
+export function getAreaList() {
+  return api.get('/parking/area/list')
 }
 
 /**
  * 获取区域统计信息
- * @param {number} communityId - 小区ID
  * @returns {Promise} 返回区域统计数据
  */
-export function getAreaStatistics(communityId) {
-  return api.get(`/parking/area/statistics/${communityId}`)
+export function getAreaStatistics() {
+  return api.get('/parking/area/statistics')
 }
 
 /**
@@ -410,78 +408,6 @@ export function updateSpace(data) {
  */
 export function deleteSpace(id) {
   return api.delete(`/parking/space/${id}`)
-}
-
-// ============ 小区管理模块 API ============
-
-/**
- * 获取小区列表（分页）
- * @param {Object} params - 查询参数
- * @param {number} params.pageNum - 页码，默认1
- * @param {number} params.pageSize - 每页条数，默认10
- * @param {string} params.name - 小区名称关键字（可选）
- * @param {string} params.address - 地址关键字（可选）
- * @param {number} params.status - 状态筛选（可选）：1启用 0禁用
- * @returns {Promise} 返回小区列表和分页信息
- */
-export function getCommunityList(params) {
-  return api.get('/community/list', { params })
-}
-
-/**
- * 获取全部小区（下拉选择用）
- * @returns {Promise} 返回全部小区列表
- */
-export function getCommunityAll() {
-  return api.get('/community/all')
-}
-
-/**
- * 获取小区详情
- * @param {number} id - 小区ID
- * @returns {Promise}
- */
-export function getCommunityDetail(id) {
-  return api.get(`/community/${id}`)
-}
-
-/**
- * 新增小区
- * @param {Object} data - 小区数据
- * @param {string} data.name - 小区名称（必填）
- * @param {string} data.address - 小区地址
- * @param {number} data.totalArea - 总面积（平方米）
- * @param {number} data.buildingCount - 楼栋数量
- * @param {string} data.description - 描述信息
- * @returns {Promise}
- */
-export function createCommunity(data) {
-  return api.post('/community', data)
-}
-
-/**
- * 更新小区
- * @param {number} id - 小区ID
- * @param {Object} data - 小区数据
- * @param {string} data.name - 小区名称
- * @param {string} data.address - 小区地址
- * @param {number} data.totalArea - 总面积
- * @param {number} data.buildingCount - 楼栋数量
- * @param {string} data.description - 描述信息
- * @param {number} data.status - 状态：1启用 0禁用
- * @returns {Promise}
- */
-export function updateCommunity(id, data) {
-  return api.put(`/community/${id}`, data)
-}
-
-/**
- * 删除小区
- * @param {number} id - 小区ID
- * @returns {Promise}
- */
-export function deleteCommunity(id) {
-  return api.delete(`/community/${id}`)
 }
 
 // ============ 预约管理模块 API ============

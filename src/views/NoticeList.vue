@@ -343,16 +343,15 @@ export default {
     // 获取通知类型显示文本
     getNoticeTypeText(type) {
       const typeMap = {
-        'SYSTEM': '系统公告',
         'system': '系统公告',
-        'PARKING_RULE': '停车规则',
         'parking_rule': '停车规则',
-        'MAINTENANCE': '维护通知',
         'maintenance': '维护通知',
-        'EMERGENCY': '紧急通知',
         'emergency': '紧急通知',
-        'EVENT': '活动通知',
-        'event': '活动通知'
+        'event': '活动通知',
+        'timeout_reminder': '超时提醒',
+        'reservation_reminder': '预约提醒',
+        'entry_exit_notice': '进出场通知',
+        'approval_result': '审批结果'
       }
       return typeMap[type] || type
     },
@@ -629,6 +628,10 @@ export default {
 .type-maintenance { background-color: #e6a23c; }
 .type-emergency { background-color: #f56c6c; }
 .type-event { background-color: #67c23a; }
+.type-timeout_reminder { background-color: #f78959; }
+.type-reservation_reminder { background-color: #85ce61; }
+.type-entry_exit_notice { background-color: #909399; }
+.type-approval_result { background-color: #b37feb; }
 
 /* 优先级标签 */
 .priority-tag {

@@ -11,7 +11,6 @@
 
         <!-- 管理员专属菜单 -->
         <router-link v-if="isAdmin" to="/users">用户管理</router-link>
-        <router-link v-if="isAdmin" to="/communities">小区管理</router-link>
         <router-link v-if="isAdmin" to="/vehicles">车辆管理</router-link>
         <router-link v-if="isAdmin" to="/parking/areas">区域管理</router-link>
         <router-link v-if="isAdmin" to="/parking/spaces">车位管理</router-link>

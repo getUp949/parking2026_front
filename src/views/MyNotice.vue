@@ -23,32 +23,56 @@
         全部
       </button>
       <button
-        :class="{ active: filterType === 'SYSTEM' }"
-        @click="handleFilterChange('SYSTEM')"
+        :class="{ active: filterType === 'system' }"
+        @click="handleFilterChange('system')"
       >
         系统公告
       </button>
       <button
-        :class="{ active: filterType === 'OVERDUE' }"
-        @click="handleFilterChange('OVERDUE')"
+        :class="{ active: filterType === 'parking_rule' }"
+        @click="handleFilterChange('parking_rule')"
+      >
+        停车规则
+      </button>
+      <button
+        :class="{ active: filterType === 'maintenance' }"
+        @click="handleFilterChange('maintenance')"
+      >
+        维护通知
+      </button>
+      <button
+        :class="{ active: filterType === 'emergency' }"
+        @click="handleFilterChange('emergency')"
+      >
+        紧急通知
+      </button>
+      <button
+        :class="{ active: filterType === 'event' }"
+        @click="handleFilterChange('event')"
+      >
+        活动通知
+      </button>
+      <button
+        :class="{ active: filterType === 'timeout_reminder' }"
+        @click="handleFilterChange('timeout_reminder')"
       >
         超时提醒
       </button>
       <button
-        :class="{ active: filterType === 'RESERVATION' }"
-        @click="handleFilterChange('RESERVATION')"
+        :class="{ active: filterType === 'reservation_reminder' }"
+        @click="handleFilterChange('reservation_reminder')"
       >
         预约提醒
       </button>
       <button
-        :class="{ active: filterType === 'ENTRY_EXIT' }"
-        @click="handleFilterChange('ENTRY_EXIT')"
+        :class="{ active: filterType === 'entry_exit_notice' }"
+        @click="handleFilterChange('entry_exit_notice')"
       >
         进出场通知
       </button>
       <button
-        :class="{ active: filterType === 'APPROVAL' }"
-        @click="handleFilterChange('APPROVAL')"
+        :class="{ active: filterType === 'approval_result' }"
+        @click="handleFilterChange('approval_result')"
       >
         审批结果
       </button>
@@ -164,10 +188,16 @@ export default {
     // 获取通知列表
     fetchNotices() {
       this.loading = true
-      getMyNotices({ noticeType: this.filterType || undefined })
+      const params = { noticeType: this.filterType || undefined }
+      getMyNotices(params)
         .then(res => {
           if (res.code === 200) {
-            this.noticeList = res.data || []
+            let data = res.data || []
+            // 前端根据 noticeType 过滤，防止后端返回多余数据
+            if (this.filterType) {
+              data = data.filter(item => item.noticeType === this.filterType)
+            }
+            this.noticeList = data
           }
         })
         .catch(err => {
@@ -192,11 +222,15 @@ export default {
     // 获取通知类型显示文本
     getNoticeTypeText(type) {
       const typeMap = {
-        'SYSTEM': '系统公告',
-        'OVERDUE': '超时提醒',
-        'RESERVATION': '预约提醒',
-        'ENTRY_EXIT': '进出场通知',
-        'APPROVAL': '审批结果'
+        'system': '系统公告',
+        'parking_rule': '停车规则',
+        'maintenance': '维护通知',
+        'emergency': '紧急通知',
+        'event': '活动通知',
+        'timeout_reminder': '超时提醒',
+        'reservation_reminder': '预约提醒',
+        'entry_exit_notice': '进出场通知',
+        'approval_result': '审批结果'
       }
       return typeMap[type] || type
     },
@@ -450,10 +484,14 @@ export default {
 }
 
 .type-system { background-color: #409eff; }
-.type-overdue { background-color: #e6a23c; }
-.type-reservation { background-color: #67c23a; }
-.type-entry_exit { background-color: #909399; }
-.type-approval { background-color: #f56c6c; }
+.type-parking_rule { background-color: #909399; }
+.type-maintenance { background-color: #e6a23c; }
+.type-emergency { background-color: #f56c6c; }
+.type-event { background-color: #67c23a; }
+.type-timeout_reminder { background-color: #f78959; }
+.type-reservation_reminder { background-color: #85ce61; }
+.type-entry_exit_notice { background-color: #909399; }
+.type-approval_result { background-color: #b37feb; }
 
 /* 优先级标签 */
 .priority-tag {

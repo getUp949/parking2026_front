@@ -4,17 +4,6 @@
       <h3>{{ isEdit ? '编辑区域' : '新增区域' }}</h3>
       
       <form @submit.prevent="handleSubmit">
-        <!-- 所属小区 -->
-        <div class="form-item">
-          <label>所属小区 <span class="required">*</span></label>
-          <select v-model="form.communityId" required>
-            <option value="">请选择小区</option>
-            <option v-for="community in communityList" :key="community.id" :value="community.id">
-              {{ community.name }}
-            </option>
-          </select>
-        </div>
-        
         <!-- 区域代码 -->
         <div class="form-item">
           <label>区域代码 <span class="required">*</span></label>
@@ -89,24 +78,11 @@ import { createArea, updateArea } from '@/utils/api'
 
 export default {
   name: 'AreaForm',
-  // 接收父组件传递的数据
   props: {
-    // 要编辑的区域数据，null表示新增
     areaData: {
       type: Object,
       default: null
     },
-    // 小区列表（用于下拉选择）
-    communityList: {
-      type: Array,
-      default: () => []
-    },
-    // 当前选中的小区ID（新增时默认选中）
-    selectedCommunityId: {
-      type: [String, Number],
-      default: ''
-    },
-    // 是否是编辑模式
     isEdit: {
       type: Boolean,
       default: false
@@ -114,28 +90,22 @@ export default {
   },
   data() {
     return {
-      // 表单数据
       form: {
-        communityId: '',
         areaCode: '',
         areaName: '',
         totalSpaces: null,
         hourlyRate: null,
         description: ''
       },
-      // 加载状态
       loading: false
     }
   },
-  // 监听props变化，初始化表单数据
   watch: {
     areaData: {
       immediate: true,
       handler(newVal) {
         if (newVal) {
-          // 编辑模式，填充表单数据
           this.form = {
-            communityId: newVal.communityId || '',
             areaCode: newVal.areaCode || '',
             areaName: newVal.areaName || '',
             totalSpaces: newVal.totalSpaces || null,
@@ -143,9 +113,7 @@ export default {
             description: newVal.description || ''
           }
         } else {
-          // 新增模式，使用父组件传入的默认小区ID
           this.form = {
-            communityId: this.selectedCommunityId || (this.communityList.length > 0 ? this.communityList[0].id : ''),
             areaCode: '',
             areaName: '',
             totalSpaces: null,
@@ -157,26 +125,21 @@ export default {
     }
   },
   methods: {
-    // 关闭弹窗
     handleClose() {
       this.$emit('close')
     },
     
-    // 提交表单
     handleSubmit() {
-      // 验证必填字段
-      if (!this.form.communityId || !this.form.areaCode || !this.form.areaName || !this.form.totalSpaces) {
+      if (!this.form.areaCode || !this.form.areaName || !this.form.totalSpaces) {
         alert('请填写必填字段')
         return
       }
       
       this.loading = true
       
-      // 根据是否为编辑模式调用不同的API
       const promise = this.isEdit 
         ? updateArea({
             id: this.areaData.id,
-            communityId: this.form.communityId,
             areaCode: this.form.areaCode,
             areaName: this.form.areaName,
             totalSpaces: this.form.totalSpaces,
@@ -184,7 +147,6 @@ export default {
             description: this.form.description
           })
         : createArea({
-            communityId: this.form.communityId,
             areaCode: this.form.areaCode,
             areaName: this.form.areaName,
             totalSpaces: this.form.totalSpaces,
@@ -196,7 +158,6 @@ export default {
         .then(res => {
           if (res.code === 200) {
             alert(this.isEdit ? '更新成功' : '创建成功')
-            // 通知父组件提交成功
             this.$emit('success')
           } else {
             alert(res.message || '操作失败')

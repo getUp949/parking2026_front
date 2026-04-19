@@ -2,22 +2,13 @@
   <div class="area-list-container">
     <h2>区域管理</h2>
     
-    <!-- 操作栏：小区选择 -->
+    <!-- 操作栏 -->
     <div class="action-bar">
-      <div class="search-item">
-        <label>选择小区：</label>
-        <select v-model="selectedCommunityId" @change="handleCommunityChange">
-          <option value="">请选择小区</option>
-          <option v-for="community in communityList" :key="community.id" :value="community.id">
-            {{ community.name }}
-          </option>
-        </select>
-      </div>
-      <button @click="handleAdd" class="btn-add" :disabled="!selectedCommunityId">新增区域</button>
+      <button @click="handleAdd" class="btn-add">新增区域</button>
     </div>
     
-    <!-- 统计卡片（选中小区后显示） -->
-    <div class="statistics-cards" v-if="selectedCommunityId">
+    <!-- 统计卡片 -->
+    <div class="statistics-cards">
       <div class="stat-card">
         <div class="stat-label">总车位数</div>
         <div class="stat-value">{{ statistics.totalSpaces || 0 }}</div>
@@ -32,8 +23,8 @@
       </div>
     </div>
     
-    <!-- 区域列表表格（选中小区后显示） -->
-    <div v-if="selectedCommunityId">
+    <!-- 区域列表表格 -->
+    <div>
       <table class="area-table" v-if="tableData.length > 0">
         <thead>
           <tr>
@@ -43,14 +34,12 @@
             <th>总车位数</th>
             <th>已占用</th>
             <th>预留</th>
-
             <th>状态</th>
             <th>描述</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          <!-- 数据行 -->
           <tr v-for="item in tableData" :key="item.id">
             <td>{{ item.id }}</td>
             <td>{{ item.areaCode }}</td>
@@ -58,7 +47,6 @@
             <td>{{ item.totalSpaces }}</td>
             <td>{{ item.occupiedSpaces }}</td>
             <td>{{ item.reservedSpaces }}</td>
-        
             <td>
               <span class="status-tag" :class="item.status === 1 ? 'status-active' : 'status-inactive'">
                 {{ item.status === 1 ? '启用' : '禁用' }}
@@ -72,18 +60,13 @@
           </tr>
         </tbody>
       </table>
-      <!-- 无数据 -->
       <div v-else class="empty-tip">暂无区域数据</div>
     </div>
-    <!-- 未选择小区提示 -->
-    <div v-else class="empty-tip">请先选择小区</div>
     
     <!-- 区域表单弹窗 -->
     <AreaForm
       v-if="showAreaForm"
       :areaData="currentArea"
-      :communityList="communityList"
-      :selectedCommunityId="selectedCommunityId"
       :isEdit="isEdit"
       @close="closeAreaForm"
       @success="handleFormSuccess"
@@ -93,7 +76,7 @@
 
 <script>
 // 引入API方法
-import { getAreaList, getAreaStatistics, deleteArea, getCommunityAll } from '@/utils/api'
+import { getAreaList, getAreaStatistics, deleteArea } from '@/utils/api'
 // 引入区域表单组件
 import AreaForm from './AreaForm.vue'
 
@@ -104,63 +87,23 @@ export default {
   },
   data() {
     return {
-      // 表格数据
       tableData: [],
-      // 统计数据
       statistics: {},
-      // 小区列表（下拉选择用）
-      communityList: [],
-      // 选中的小区ID
-      selectedCommunityId: '',
-      // 加载状态
       loading: false,
-      // 弹窗显示状态
       showAreaForm: false,
-      // 当前操作的区域
       currentArea: null,
-      // 是否是编辑模式
       isEdit: false
     }
   },
   created() {
-    // 组件创建时获取小区列表
-    this.fetchCommunityList()
+    this.fetchAreaList()
+    this.fetchStatistics()
   },
   methods: {
-    // 获取小区列表（下拉选择用）
-    fetchCommunityList() {
-      getCommunityAll()
-        .then(res => {
-          if (res.code === 200) {
-            this.communityList = res.data || []
-            // 如果有小区，默认选中第一个
-            if (this.communityList.length > 0) {
-              this.selectedCommunityId = this.communityList[0].id
-              this.fetchAreaList()
-              this.fetchStatistics()
-            }
-          }
-        })
-        .catch(err => {
-          console.error('获取小区列表失败', err)
-        })
-    },
-    
-    // 小区切换事件
-    handleCommunityChange() {
-      this.tableData = []
-      this.statistics = {}
-      if (this.selectedCommunityId) {
-        this.fetchAreaList()
-        this.fetchStatistics()
-      }
-    },
-    
     // 获取区域列表
     fetchAreaList() {
-      if (!this.selectedCommunityId) return
       this.loading = true
-      getAreaList(this.selectedCommunityId)
+      getAreaList()
         .then(res => {
           if (res.code === 200) {
             this.tableData = res.data || []
@@ -176,8 +119,7 @@ export default {
     
     // 获取统计数据
     fetchStatistics() {
-      if (!this.selectedCommunityId) return
-      getAreaStatistics(this.selectedCommunityId)
+      getAreaStatistics()
         .then(res => {
           if (res.code === 200) {
             this.statistics = res.data || {}
@@ -197,7 +139,6 @@ export default {
     
     // 编辑区域
     handleEdit(area) {
-      // 复制一份数据，避免直接修改表格数据
       this.currentArea = { ...area }
       this.isEdit = true
       this.showAreaForm = true

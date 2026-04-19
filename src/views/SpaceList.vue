@@ -2,25 +2,13 @@
   <div class="space-list-container">
     <h2>车位管理</h2>
     
-    <!-- 操作栏：小区和区域级联选择 -->
+    <!-- 操作栏 -->
     <div class="action-bar">
-      <!-- 小区选择 -->
-      <div class="search-item">
-        <label>选择小区：</label>
-        <select v-model="selectedCommunityId" @change="handleCommunityChange">
-          <option value="">请选择小区</option>
-          <option v-for="community in communityList" :key="community.id" :value="community.id">
-            {{ community.name }}
-          </option>
-        </select>
-      </div>
-      
-      <!-- 区域选择 -->
       <div class="search-item">
         <label>选择区域：</label>
-        <select v-model="searchForm.areaId" @change="handleAreaChange" :disabled="!selectedCommunityId">
-          <option value="">请先选择小区</option>
-          <option v-for="area in filteredAreaList" :key="area.id" :value="area.id">
+        <select v-model="searchForm.areaId" @change="handleAreaChange">
+          <option value="">请选择区域</option>
+          <option v-for="area in areaList" :key="area.id" :value="area.id">
             {{ area.areaName }}
           </option>
         </select>
@@ -31,14 +19,13 @@
     
     <!-- 统计信息 -->
     <div class="info-bar" v-if="searchForm.areaId">
-      <span>小区：{{ currentCommunityName }}</span>
       <span>区域：{{ currentAreaName }}</span>
       <span>可用车位：{{ availableCount }}</span>
     </div>
     
     <!-- 未选择提示 -->
-    <div v-if="!selectedCommunityId" class="empty-tip">请先选择小区</div>
-    <div v-else-if="!searchForm.areaId && filteredAreaList.length === 0" class="empty-tip">该小区下暂无区域，请先添加区域</div>
+    <div v-if="!searchForm.areaId && areaList.length === 0" class="empty-tip">暂无区域，请先添加区域</div>
+    <div v-else-if="!searchForm.areaId" class="empty-tip">请先选择区域</div>
     
     <!-- 车位列表表格 -->
     <div v-else-if="searchForm.areaId">
@@ -54,7 +41,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- 数据行 -->
           <tr v-for="item in tableData" :key="item.id">
             <td>{{ item.id }}</td>
             <td>{{ item.spaceNumber }}</td>
@@ -79,9 +65,7 @@
     <SpaceForm
       v-if="showSpaceForm"
       :spaceData="currentSpace"
-      :communityList="communityList"
-      :areaList="filteredAreaList"
-      :selectedCommunityId="selectedCommunityId"
+      :areaList="areaList"
       :isEdit="isEdit"
       @close="closeSpaceForm"
       @success="handleFormSuccess"
@@ -91,7 +75,7 @@
 
 <script>
 // 引入API方法
-import { getSpaceList, getAreaList, getCommunityAll, getAvailableCount, deleteSpace } from '@/utils/api'
+import { getSpaceList, getAreaList, getAvailableCount, deleteSpace } from '@/utils/api'
 // 引入车位表单组件
 import SpaceForm from './SpaceForm.vue'
 
@@ -102,83 +86,39 @@ export default {
   },
   data() {
     return {
-      // 搜索表单
       searchForm: {
         areaId: ''
       },
-      // 表格数据
       tableData: [],
-      // 区域列表
       areaList: [],
-      // 小区列表
-      communityList: [],
-      // 选中的小区ID
-      selectedCommunityId: '',
-      // 可用车位数量
       availableCount: 0,
-      // 加载状态
       loading: false,
-      // 弹窗显示状态
       showSpaceForm: false,
-      // 当前操作的车位
       currentSpace: null,
-      // 是否是编辑模式
       isEdit: false
     }
   },
   computed: {
-    // 根据选中的小区筛选区域列表
-    filteredAreaList() {
-      if (!this.selectedCommunityId) return []
-      return this.areaList.filter(area => area.communityId === this.selectedCommunityId)
-    },
-    // 当前选中的小区名称
-    currentCommunityName() {
-      const community = this.communityList.find(c => c.id === this.selectedCommunityId)
-      return community ? community.name : ''
-    },
-    // 当前选中的区域名称
     currentAreaName() {
       const area = this.areaList.find(a => a.id === this.searchForm.areaId)
       return area ? area.areaName : ''
     }
   },
   created() {
-    // 组件创建时获取数据
-    this.fetchCommunityList()
+    this.fetchAreaList()
   },
   methods: {
-    // 获取小区列表
-    fetchCommunityList() {
-      getCommunityAll()
-        .then(res => {
-          if (res.code === 200) {
-            this.communityList = res.data || []
-            // 如果有小区，默认选中第一个
-            if (this.communityList.length > 0) {
-              this.selectedCommunityId = this.communityList[0].id
-              this.fetchAreaList()
-            }
-          }
-        })
-        .catch(err => {
-          console.error('获取小区列表失败', err)
-        })
-    },
-    
     // 获取区域列表
     fetchAreaList() {
-      if (!this.selectedCommunityId) return
-      getAreaList(this.selectedCommunityId)
+      getAreaList()
         .then(res => {
           if (res.code === 200) {
             this.areaList = res.data || []
-            // 如果有区域，自动加载第一个区域的车位
-            if (this.filteredAreaList.length > 0 && !this.searchForm.areaId) {
-              this.searchForm.areaId = this.filteredAreaList[0].id
+            if (this.areaList.length > 0 && !this.searchForm.areaId) {
+              this.searchForm.areaId = this.areaList[0].id
+              this.fetchSpaceList()
               this.fetchAvailableCount()
             }
-            this.fetchSpaceList()
           }
         })
         .catch(err => {
@@ -186,23 +126,11 @@ export default {
         })
     },
     
-    // 小区切换事件
-    handleCommunityChange() {
-      // 清空区域选择
-      this.searchForm.areaId = ''
-      this.tableData = []
-      this.availableCount = 0
-      // 重新加载该小区的区域
-      if (this.selectedCommunityId) {
-        this.fetchAreaList()
-      }
-    },
-    
     // 获取车位列表
     fetchSpaceList() {
+      if (!this.searchForm.areaId) return
       this.loading = true
-      const params = this.searchForm.areaId ? { areaId: this.searchForm.areaId } : {}
-      getSpaceList(params)
+      getSpaceList({ areaId: this.searchForm.areaId })
         .then(res => {
           if (res.code === 200) {
             this.tableData = res.data || []
@@ -215,8 +143,6 @@ export default {
           this.loading = false
         })
     },
-    
-    // 获取区域列表（用于下拉选择）
     
     // 获取可用车位数量
     fetchAvailableCount() {
@@ -237,12 +163,6 @@ export default {
       this.fetchSpaceList()
       this.fetchAvailableCount()
     },
-    
-    // 根据区域ID获取区域名称
-    // getAreaName(areaId) {
-    //   const area = this.areaList.find(a => a.id === areaId)
-    //   return area ? area.areaName : '-'
-    // },
     
     // 获取状态显示文本
     getStatusText(status) {

@@ -7,20 +7,11 @@
       <h3>车辆入场登记</h3>
       
       <form @submit.prevent="handleEntry" class="entry-form">
-        <!-- 选择小区 -->
+        <!-- 选择区域 -->
         <div class="form-row">
           <div class="form-item">
-            <label>选择小区 <span class="required">*</span></label>
-            <select v-model="form.communityId" @change="handleCommunityChange" required>
-              <option value="">请选择小区</option>
-              <option v-for="c in communityList" :key="c.id" :value="c.id">{{ c.name }}</option>
-            </select>
-          </div>
-          
-          <!-- 选择区域 -->
-          <div class="form-item">
             <label>选择区域 <span class="required">*</span></label>
-            <select v-model="form.areaId" @change="handleAreaChange" required :disabled="!form.communityId">
+            <select v-model="form.areaId" @change="handleAreaChange" required>
               <option value="">请选择区域</option>
               <option v-for="a in areaList" :key="a.id" :value="a.id">{{ a.areaName }} ({{ a.areaCode }})</option>
             </select>
@@ -223,7 +214,6 @@ import {
   getEntryDetail, 
   recognizePlate, 
   updateEntryVerify,
-  getCommunityAll,
   getAreaList,
   getAvailableSpaces
 } from '@/utils/api'
@@ -232,37 +222,27 @@ export default {
   name: 'VehicleEntryPage',
   data() {
     return {
-      // 登记表单数据
       form: {
-        communityId: '',
         areaId: '',
         spaceId: '',
         licensePlate: '',
         entryType: 'normal',
         entrySource: 'manual'
       },
-      // 下拉列表数据
-      communityList: [],
       areaList: [],
       spaceList: [],
-      // 识别到的车辆信息
       recognizedVehicle: null,
-      // 加载状态
       loading: false,
       
-      // 搜索参数
       searchParams: {
         pageNum: 1,
         pageSize: 10,
         licensePlate: '',
         entryType: ''
       },
-      // 表格数据
       tableData: [],
-      // 总记录数
       total: 0,
       
-      // 验证弹窗
       showVerifyModal: false,
       verifyForm: {
         id: null,
@@ -270,7 +250,6 @@ export default {
         remark: ''
       },
       
-      // 详情弹窗
       showDetailModal: false,
       currentDetail: {}
     }
@@ -282,40 +261,13 @@ export default {
     }
   },
   created() {
-    // 页面加载时获取小区列表
-    this.fetchCommunityList()
-    // 获取入场记录列表
+    this.fetchAreaList()
     this.fetchEntryList()
   },
   methods: {
-    // 获取小区列表
-    fetchCommunityList() {
-      getCommunityAll()
-        .then(res => {
-          if (res.code === 200) {
-            this.communityList = res.data || []
-          }
-        })
-        .catch(err => {
-          console.error('获取小区列表失败', err)
-        })
-    },
-
-    // 小区变更时获取区域列表
-    handleCommunityChange() {
-      this.form.areaId = ''
-      this.form.spaceId = ''
-      this.areaList = []
-      this.spaceList = []
-      
-      if (this.form.communityId) {
-        this.fetchAreaList(this.form.communityId)
-      }
-    },
-
     // 获取区域列表
-    fetchAreaList(communityId) {
-      getAreaList(communityId)
+    fetchAreaList() {
+      getAreaList()
         .then(res => {
           if (res.code === 200) {
             this.areaList = res.data || []
@@ -377,7 +329,7 @@ export default {
     // 提交入场登记
     handleEntry() {
       // 验证必填字段
-      if (!this.form.communityId || !this.form.areaId || !this.form.spaceId || 
+      if (!this.form.areaId || !this.form.spaceId || 
           !this.form.licensePlate || !this.form.entryType || !this.form.entrySource) {
         alert('请填写所有必填字段')
         return
@@ -398,7 +350,6 @@ export default {
           if (res.code === 200) {
             alert('入场登记成功')
             this.handleReset()
-            // 刷新列表
             this.fetchEntryList()
           } else {
             alert(res.message || '入场登记失败')
@@ -415,7 +366,6 @@ export default {
     // 重置表单
     handleReset() {
       this.form = {
-        communityId: this.form.communityId, // 保留小区选择
         areaId: '',
         spaceId: '',
         licensePlate: '',
@@ -423,7 +373,6 @@ export default {
         entrySource: 'manual'
       }
       this.recognizedVehicle = null
-      this.areaList = []
       this.spaceList = []
     },
 

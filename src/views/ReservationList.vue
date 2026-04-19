@@ -9,10 +9,12 @@
         <label>预约状态：</label>
         <select v-model="searchForm.status">
           <option value="">全部</option>
-          <option value="0">待生效</option>
-          <option value="1">已生效</option>
-          <option value="2">已完成</option>
-          <option value="3">已取消</option>
+          <option value="0">已取消</option>
+          <option value="1">待审批</option>
+          <option value="2">已预约</option>
+          <option value="3">已入场</option>
+          <option value="4">已完成</option>
+          <option value="5">已超时</option>
         </select>
       </div>
       
@@ -44,7 +46,6 @@
           <th>目标区域</th>
           <th>预计开始时间</th>
           <th>预计结束时间</th>
-          <th>审批状态</th>
           <th>预约状态</th>
           <th>操作</th>
         </tr>
@@ -62,37 +63,37 @@
           <td>{{ item.expectedStartTime }}</td>
           <td>{{ item.expectedEndTime }}</td>
           <td>
-            <span class="status-tag" :class="'auth-status-' + item.authorizationStatus">
-              {{ getAuthStatusText(item.authorizationStatus) }}
-            </span>
-          </td>
-          <td>
             <span class="status-tag" :class="'status-' + item.status">
               {{ getStatusText(item.status) }}
             </span>
           </td>
           <td class="actions">
-            <!-- 待审批状态下显示审批按钮 -->
+            <!-- 待审批状态下显示通过和拒绝按钮 -->
             <button 
-              v-if="item.authorizationStatus === 'pending'" 
-              @click="handleApprove(item)" 
+              v-if="item.status === 1" 
+              @click="handleApprove(item, 'approved')" 
               class="btn-link"
-            >审批</button>
-            <!-- 待生效状态下显示生效按钮 -->
+            >通过</button>
             <button 
-              v-if="item.status === 0" 
+              v-if="item.status === 1" 
+              @click="handleApprove(item, 'rejected')" 
+              class="btn-link btn-danger"
+            >拒绝</button>
+            <!-- 已预约状态下显示入场按钮 -->
+            <button 
+              v-if="item.status === 2" 
               @click="handleActivate(item)" 
               class="btn-link"
             >入场</button>
-            <!-- 已生效状态下显示出场按钮 -->
+            <!-- 已入场状态下显示出场按钮 -->
             <button 
-              v-if="item.status === 1" 
+              v-if="item.status === 3" 
               @click="handleComplete(item)" 
               class="btn-link"
             >出场</button>
-            <!-- 待生效状态下显示取消按钮 -->
+            <!-- 待审批和已预约状态下显示取消按钮 -->
             <button 
-              v-if="item.status === 0" 
+              v-if="item.status === 1 || item.status === 2" 
               @click="handleCancel(item)" 
               class="btn-link btn-danger"
             >取消</button>
@@ -114,36 +115,6 @@
         @click="handlePageChange(searchForm.pageNum + 1)" 
         :disabled="searchForm.pageNum * searchForm.pageSize >= total"
       >下一页</button>
-    </div>
-    
-    <!-- 审批弹窗 -->
-    <div class="modal" v-if="showApproveModal">
-      <div class="modal-content">
-        <h3>审批预约</h3>
-        <form @submit.prevent="submitApprove">
-          <div class="form-item">
-            <label>审批结果 <span class="required">*</span></label>
-            <select v-model="approveForm.status" required>
-              <option value="approved">通过</option>
-              <option value="rejected">拒绝</option>
-            </select>
-          </div>
-          <div class="form-item">
-            <label>备注</label>
-            <textarea 
-              v-model="approveForm.remark" 
-              placeholder="请输入审批备注"
-              rows="3"
-            ></textarea>
-          </div>
-          <div class="form-btns">
-            <button type="button" @click="closeApproveModal" class="btn-cancel">取消</button>
-            <button type="submit" class="btn-submit" :disabled="loading">
-              {{ loading ? '提交中...' : '提交' }}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   </div>
 </template>
@@ -175,15 +146,6 @@ export default {
       total: 0,
       // 加载状态
       loading: false,
-      // 审批弹窗显示状态
-      showApproveModal: false,
-      // 当前审批的预约
-      currentReservation: null,
-      // 审批表单数据
-      approveForm: {
-        status: 'approved',
-        remark: ''
-      },
       // 提交加载状态
       submitLoading: false
     }
@@ -234,63 +196,39 @@ export default {
       this.fetchReservationList()
     },
     
-    // 获取审批状态文本
-    getAuthStatusText(status) {
-      const statusMap = {
-        pending: '待审批',
-        approved: '已通过',
-        rejected: '已拒绝'
-      }
-      return statusMap[status] || '未知'
-    },
-    
     // 获取预约状态文本
     getStatusText(status) {
       const statusMap = {
-        0: '待生效',
-        1: '已生效',
-        2: '已完成',
-        3: '已取消'
+        0: '已取消',
+        1: '待审批',
+        2: '已预约',
+        3: '已入场',
+        4: '已完成',
+        5: '已超时'
       }
       return statusMap[status] || '未知'
     },
     
-    // 打开审批弹窗
-    handleApprove(reservation) {
-      this.currentReservation = reservation
-      this.approveForm = {
-        status: 'approved',
-        remark: ''
+    // 审批预约（通过/拒绝）
+    handleApprove(reservation, action) {
+      if (!confirm(`确认${action === 'approved' ? '通过' : '拒绝'}车牌 "${reservation.licensePlate}" 的预约吗？`)) {
+        return
       }
-      this.showApproveModal = true
-    },
-    
-    // 关闭审批弹窗
-    closeApproveModal() {
-      this.showApproveModal = false
-      this.currentReservation = null
-    },
-    
-    // 提交审批
-    submitApprove() {
-      if (!this.currentReservation) return
       
-      this.submitLoading = true
-      approveReservation(this.currentReservation.id, this.approveForm)
+      const formData = new FormData()
+      formData.append('status', action)
+      
+      approveReservation(reservation.id, formData)
         .then(res => {
           if (res.code === 200) {
-            alert('审批成功')
-            this.closeApproveModal()
+            alert('操作成功')
             this.fetchReservationList()
           } else {
-            alert(res.message || '审批失败')
+            alert(res.message || '操作失败')
           }
         })
         .catch(err => {
-          alert(err.message || '审批失败')
-        })
-        .finally(() => {
-          this.submitLoading = false
+          alert(err.message || '操作失败')
         })
     },
     
@@ -442,34 +380,29 @@ export default {
   color: white;
 }
 
-/* 审批状态 */
-.auth-status-pending {
-  background-color: #e6a23c;
-}
-
-.auth-status-approved {
-  background-color: #67c23a;
-}
-
-.auth-status-rejected {
-  background-color: #f56c6c;
-}
-
 /* 预约状态 */
 .status-0 {
-  background-color: #e6a23c;
+  background-color: #909399;
 }
 
 .status-1 {
-  background-color: #409eff;
+  background-color: #e6a23c;
 }
 
 .status-2 {
-  background-color: #67c23a;
+  background-color: #409eff;
 }
 
 .status-3 {
-  background-color: #909399;
+  background-color: #9c27b0;
+}
+
+.status-4 {
+  background-color: #67c23a;
+}
+
+.status-5 {
+  background-color: #f56c6c;
 }
 
 /* 操作按钮 */
@@ -520,7 +453,7 @@ export default {
   cursor: not-allowed;
 }
 
-/* 弹窗样式 */
+/* 弹窗样式 - 保留以备后用 */
 .modal {
   position: fixed;
   top: 0;

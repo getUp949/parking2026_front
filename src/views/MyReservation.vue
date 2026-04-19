@@ -19,7 +19,6 @@
           <th>目标区域</th>
           <th>预计开始时间</th>
           <th>预计结束时间</th>
-          <th>审批状态</th>
           <th>预约状态</th>
           <th>操作</th>
         </tr>
@@ -36,19 +35,14 @@
           <td>{{ item.expectedStartTime }}</td>
           <td>{{ item.expectedEndTime }}</td>
           <td>
-            <span class="status-tag" :class="'auth-status-' + item.authorizationStatus">
-              {{ getAuthStatusText(item.authorizationStatus) }}
-            </span>
-          </td>
-          <td>
             <span class="status-tag" :class="'status-' + item.status">
               {{ getStatusText(item.status) }}
             </span>
           </td>
           <td class="actions">
-            <!-- 待生效状态下显示取消按钮 -->
+            <!-- 待审批状态下显示取消按钮 -->
             <button 
-              v-if="item.status === 0" 
+              v-if="item.status === 1" 
               @click="handleCancel(item)" 
               class="btn-link btn-danger"
             >取消预约</button>
@@ -157,7 +151,6 @@ import {
   getMyReservations, 
   createReservation, 
   cancelReservation,
-  getCommunityAll,
   getAreaList
 } from '@/utils/api'
 
@@ -184,40 +177,17 @@ export default {
         visitReason: ''
       },
       // 加载状态
-      loading: false,
-      // 当前选中的小区ID
-      selectedCommunityId: ''
+      loading: false
     }
   },
   created() {
-    // 组件创建时获取数据
-    this.fetchCommunityAndArea()
+    this.fetchAreaList()
+    this.fetchMyReservations()
   },
   methods: {
-    // 获取小区和区域数据
-    fetchCommunityAndArea() {
-      // 先获取小区列表
-      getCommunityAll()
-        .then(res => {
-          if (res.code === 200 && res.data.length > 0) {
-            // 默认选中第一个小区
-            this.selectedCommunityId = res.data[0].id
-            // 获取该小区的区域列表
-            this.fetchAreaList()
-          }
-        })
-        .catch(err => {
-          console.error('获取小区列表失败', err)
-        })
-      
-      // 获取我的预约列表
-      this.fetchMyReservations()
-    },
-    
     // 获取区域列表
     fetchAreaList() {
-      if (!this.selectedCommunityId) return
-      getAreaList(this.selectedCommunityId)
+      getAreaList()
         .then(res => {
           if (res.code === 200) {
             this.areaList = res.data || []
@@ -241,23 +211,15 @@ export default {
         })
     },
     
-    // 获取审批状态文本
-    getAuthStatusText(status) {
-      const statusMap = {
-        pending: '待审批',
-        approved: '已通过',
-        rejected: '已拒绝'
-      }
-      return statusMap[status] || '未知'
-    },
-    
     // 获取预约状态文本
     getStatusText(status) {
       const statusMap = {
-        0: '待生效',
-        1: '已生效',
-        2: '已完成',
-        3: '已取消'
+        0: '已取消',
+        1: '待审批',
+        2: '已预约',
+        3: '已入场',
+        4: '已完成',
+        5: '已超时'
       }
       return statusMap[status] || '未知'
     },
@@ -415,34 +377,29 @@ export default {
   color: white;
 }
 
-/* 审批状态 */
-.auth-status-pending {
-  background-color: #e6a23c;
-}
-
-.auth-status-approved {
-  background-color: #67c23a;
-}
-
-.auth-status-rejected {
-  background-color: #f56c6c;
-}
-
 /* 预约状态 */
 .status-0 {
-  background-color: #e6a23c;
+  background-color: #909399;
 }
 
 .status-1 {
-  background-color: #409eff;
+  background-color: #e6a23c;
 }
 
 .status-2 {
-  background-color: #67c23a;
+  background-color: #409eff;
 }
 
 .status-3 {
-  background-color: #909399;
+  background-color: #9c27b0;
+}
+
+.status-4 {
+  background-color: #67c23a;
+}
+
+.status-5 {
+  background-color: #f56c6c;
 }
 
 /* 操作按钮 */

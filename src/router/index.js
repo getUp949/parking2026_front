@@ -15,7 +15,6 @@ import VehicleList from '@/views/VehicleList.vue'
 import MyVehicle from '@/views/MyVehicle.vue'
 import AreaList from '@/views/AreaList.vue'
 import SpaceList from '@/views/SpaceList.vue'
-import CommunityList from '@/views/CommunityList.vue'
 import ReservationList from '@/views/ReservationList.vue'
 import MyReservation from '@/views/MyReservation.vue'
 import VehicleEntry from '@/views/VehicleEntry.vue'
@@ -84,13 +83,6 @@ const router = new VueRouter({
       path: '/parking/spaces',
       name: 'SpaceList',
       component: SpaceList,
-      meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    // 小区管理（管理员）
-    {
-      path: '/communities',
-      name: 'CommunityList',
-      component: CommunityList,
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     // 预约管理（管理员）
