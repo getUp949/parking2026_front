@@ -305,7 +305,6 @@ export function getAreaDetail(id) {
  * @param {string} data.areaCode - 区域代码（必填）
  * @param {string} data.areaName - 区域名称（必填）
  * @param {number} data.totalSpaces - 总车位数（必填）
- * @param {number} data.hourlyRate - 每小时费率
  * @param {string} data.description - 描述
  * @returns {Promise}
  */
@@ -320,7 +319,6 @@ export function createArea(data) {
  * @param {string} data.areaCode - 区域代码
  * @param {string} data.areaName - 区域名称
  * @param {number} data.totalSpaces - 总车位数
- * @param {number} data.hourlyRate - 每小时费率
  * @param {string} data.description - 描述
  * @returns {Promise}
  */
@@ -335,79 +333,6 @@ export function updateArea(data) {
  */
 export function deleteArea(id) {
   return api.delete(`/parking/area/${id}`)
-}
-
-// ============ 车位管理模块 API ============
-
-/**
- * 获取车位列表
- * @param {Object} params - 查询参数
- * @param {number} params.areaId - 区域ID（可选）
- * @returns {Promise} 返回车位列表
- */
-export function getSpaceList(params) {
-  return api.get('/parking/space/list', { params })
-}
-
-/**
- * 获取可用车位列表
- * @param {number} areaId - 区域ID（可选）
- * @returns {Promise} 返回可用车位列表
- */
-export function getAvailableSpaces(areaId) {
-  return api.get('/parking/space/available', { params: { areaId } })
-}
-
-/**
- * 获取可用车位数量
- * @param {number} areaId - 区域ID（可选）
- * @returns {Promise} 返回可用车位数量
- */
-export function getAvailableCount(areaId) {
-  return api.get('/parking/space/available/count', { params: { areaId } })
-}
-
-/**
- * 获取车位详情
- * @param {number} id - 车位ID
- * @returns {Promise}
- */
-export function getSpaceDetail(id) {
-  return api.get(`/parking/space/${id}`)
-}
-
-/**
- * 添加车位
- * @param {Object} data - 车位数据
- * @param {number} data.areaId - 区域ID（必填）
- * @param {string} data.spaceNumber - 车位编号（必填）
- * @param {string} data.position - 位置：地上/地下
- * @returns {Promise}
- */
-export function createSpace(data) {
-  return api.post('/parking/space', data)
-}
-
-/**
- * 更新车位
- * @param {Object} data - 车位数据
- * @param {number} data.id - 车位ID（必填）
- * @param {string} data.spaceNumber - 车位编号
- * @param {number} data.status - 状态：0空闲 1已占用 2预留
- * @param {string} data.position - 位置
- * @returns {Promise}
- */
-export function updateSpace(data) {
-  return api.put('/parking/space', data)
-}
-
-/**
- * 删除车位
- * @param {number} id - 车位ID
- * @returns {Promise}
- */
-export function deleteSpace(id) {
-  return api.delete(`/parking/space/${id}`)
 }
 
 // ============ 预约管理模块 API ============
@@ -576,7 +501,7 @@ export function updateEntryVerify(id, data) {
  * @param {number} data.entryRecordId - 入场记录ID（必填）
  * @param {string} data.licensePlate - 车牌号（必填）
  * @param {string} data.exitType - 出场类型：normal正常/early提前（必填）
- * @returns {Promise} 返回出场记录，包含停车时长和费用信息
+ * @returns {Promise} 返回出场记录，包含停车时长信息
  */
 export function vehicleExit(data) {
   return api.post('/vehicle/exit', data)

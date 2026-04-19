@@ -38,18 +38,6 @@
           />
         </div>
         
-        <!-- 每小时费率 -->
-        <div class="form-item">
-          <label>每小时费率(元)</label>
-          <input 
-            v-model.number="form.hourlyRate" 
-            type="number" 
-            placeholder="请输入每小时费率"
-            min="0"
-            step="0.01"
-          />
-        </div>
-        
         <!-- 描述 -->
         <div class="form-item">
           <label>描述</label>
@@ -94,7 +82,6 @@ export default {
         areaCode: '',
         areaName: '',
         totalSpaces: null,
-        hourlyRate: null,
         description: ''
       },
       loading: false
@@ -109,7 +96,6 @@ export default {
             areaCode: newVal.areaCode || '',
             areaName: newVal.areaName || '',
             totalSpaces: newVal.totalSpaces || null,
-            hourlyRate: newVal.hourlyRate || null,
             description: newVal.description || ''
           }
         } else {
@@ -117,7 +103,6 @@ export default {
             areaCode: '',
             areaName: '',
             totalSpaces: null,
-            hourlyRate: null,
             description: ''
           }
         }
@@ -143,14 +128,12 @@ export default {
             areaCode: this.form.areaCode,
             areaName: this.form.areaName,
             totalSpaces: this.form.totalSpaces,
-            hourlyRate: this.form.hourlyRate,
             description: this.form.description
           })
         : createArea({
             areaCode: this.form.areaCode,
             areaName: this.form.areaName,
             totalSpaces: this.form.totalSpaces,
-            hourlyRate: this.form.hourlyRate,
             description: this.form.description
           })
       

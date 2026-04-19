@@ -75,11 +75,6 @@
             <th>入场记录ID</th>
             <th>出场时间</th>
             <th>停车时长(分钟)</th>
-            <th>免费时长(分钟)</th>
-            <th>收费时长(分钟)</th>
-            <th>费用(元)</th>
-            <th>实收(元)</th>
-            <th>支付状态</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -90,15 +85,6 @@
             <td>{{ item.entryRecordId }}</td>
             <td>{{ item.exitTime }}</td>
             <td>{{ item.parkingDuration }}</td>
-            <td>{{ item.freeDuration }}</td>
-            <td>{{ item.chargedDuration }}</td>
-            <td>{{ item.feeAmount }}</td>
-            <td>{{ item.actualAmount }}</td>
-            <td>
-              <span class="payment-tag" :class="'payment-' + item.paymentStatus">
-                {{ getPaymentStatusText(item.paymentStatus) }}
-              </span>
-            </td>
             <td class="actions">
               <button @click="handleViewDetail(item)" class="btn-link">详情</button>
             </td>
@@ -127,16 +113,11 @@
         <h3>出场记录详情</h3>
         <div class="detail-info">
           <p><strong>ID：</strong>{{ currentDetail.id }}</p>
-<p><strong>车牌号：</strong>{{ currentDetail.licensePlate }}</p>
+          <p><strong>车牌号：</strong>{{ currentDetail.licensePlate }}</p>
           <p><strong>入场记录ID：</strong>{{ currentDetail.entryRecordId }}</p>
           <p><strong>出场时间：</strong>{{ currentDetail.exitTime }}</p>
           <p><strong>出场方式：</strong>{{ currentDetail.exitType === 'manual' ? '保安手动登记' : '自动识别出场' }}</p>
           <p><strong>停车时长：</strong>{{ currentDetail.parkingDuration }} 分钟</p>
-          <p><strong>免费时长：</strong>{{ currentDetail.freeDuration }} 分钟</p>
-          <p><strong>收费时长：</strong>{{ currentDetail.chargedDuration }} 分钟</p>
-          <p><strong>费用：</strong>{{ currentDetail.feeAmount }} 元</p>
-          <p><strong>实收金额：</strong>{{ currentDetail.actualAmount }} 元</p>
-          <p><strong>支付状态：</strong>{{ getPaymentStatusText(currentDetail.paymentStatus) }}</p>
         </div>
         <div class="form-btns">
           <button @click="showDetailModal = false" class="btn-cancel">关闭</button>
@@ -241,16 +222,6 @@ export default {
         .then(res => {
           if (res.code === 200) {
             alert('出场登记成功')
-            // 显示停车费用信息
-            const data = res.data
-            let msg = `停车时长：${data.parkingDuration} 分钟\n`
-            msg += `免费时长：${data.freeDuration} 分钟\n`
-            msg += `收费时长：${data.chargedDuration} 分钟\n`
-            msg += `费用：${data.feeAmount} 元\n`
-            msg += `实收：${data.actualAmount} 元\n`
-            msg += `支付状态：${this.getPaymentStatusText(data.paymentStatus)}`
-            alert(msg)
-            
             this.handleReset()
             // 刷新列表
             this.fetchExitList()
@@ -310,16 +281,6 @@ export default {
         temp: '临时入场'
       }
       return map[type] || type
-    },
-
-    // 获取支付状态文本
-    getPaymentStatusText(status) {
-      const map = {
-        pending: '待支付',
-        paid: '已支付',
-        unpaid: '未支付'
-      }
-      return map[status] || status
     },
 
     // 查看详情
@@ -503,26 +464,6 @@ export default {
 .data-table th {
   background-color: #f5f7fa;
   font-weight: bold;
-}
-
-/* 支付状态标签 */
-.payment-tag {
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 12px;
-  color: white;
-}
-
-.payment-pending {
-  background-color: #e6a23c;
-}
-
-.payment-paid {
-  background-color: #67c23a;
-}
-
-.payment-unpaid {
-  background-color: #f56c6c;
 }
 
 /* 操作按钮 */

@@ -13,7 +13,6 @@
         <router-link v-if="isAdmin" to="/users">用户管理</router-link>
         <router-link v-if="isAdmin" to="/vehicles">车辆管理</router-link>
         <router-link v-if="isAdmin" to="/parking/areas">区域管理</router-link>
-        <router-link v-if="isAdmin" to="/parking/spaces">车位管理</router-link>
         <router-link v-if="isAdmin" to="/reservations">预约管理</router-link>
 
         <!-- 保安专属菜单（也包含在管理员的入场出场中） -->
