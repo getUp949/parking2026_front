@@ -29,7 +29,6 @@
           <th>型号</th>
           <th>颜色</th>
           <th>类型</th>
-          <th>默认</th>
           <th>状态</th>
           <th>注册时间</th>
           <th>操作</th>
@@ -55,15 +54,11 @@
           <td>{{ item.vehicleColor || '-' }}</td>
           <td>{{ getVehicleTypeText(item.vehicleType) }}</td>
           <td>
-            <span v-if="item.isDefault === 1" class="default-tag">默认</span>
-            <span v-else>-</span>
-          </td>
-          <td>
             <span class="status-tag" :class="'status-' + item.status">
               {{ getStatusText(item.status) }}
             </span>
           </td>
-          <td>{{ item.createTime }}</td>
+          <td>{{ formatTime(item.createTime) }}</td>
           <td class="actions">
             <button @click="handleView(item)" class="btn-link">查看</button>
             <!-- 待审核的车辆可以审核 -->
@@ -176,7 +171,7 @@
           </div>
           <div class="detail-item">
             <label>注册时间：</label>
-            <span>{{ currentVehicle.createTime }}</span>
+            <span>{{ formatTime(currentVehicle.createTime) }}</span>
           </div>
         </div>
         <div class="modal-btns">
@@ -316,11 +311,10 @@ export default {
     // 获取车辆类型显示文本
     getVehicleTypeText(type) {
       const typeMap = {
-        'small': '小型车',
-        'medium': '中型车',
-        'large': '大型车',
+        'car': '轿车',
         'suv': 'SUV',
-        'mpv': 'MPV'
+        'van': '面包车/商务车',
+        'other': '其他'
       }
       return typeMap[type] || type || '-'
     },
@@ -333,6 +327,12 @@ export default {
         2: '已拒绝'
       }
       return statusMap[status] || status
+    },
+
+    // 格式化时间显示 (2026-04-22T20:50:25 -> 2026-04-22 20:50:25)
+    formatTime(timeStr) {
+      if (!timeStr) return '-'
+      return timeStr.replace('T', ' ')
     },
     
     // 查看详情

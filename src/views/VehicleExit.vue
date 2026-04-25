@@ -24,7 +24,7 @@
           <div class="form-item">
             <label>出场方式 <span class="required">*</span></label>
             <select v-model="form.exitType" required>
-              <option value="manual">保安手动登记</option>
+              <option value="manual">手动登记出场</option>
               <option value="auto">自动识别出场</option>
             </select>
           </div>
@@ -83,7 +83,7 @@
             <td>{{ item.id }}</td>
             <td>{{ item.licensePlate }}</td>
             <td>{{ item.entryRecordId }}</td>
-            <td>{{ item.exitTime }}</td>
+            <td>{{ formatTime(item.exitTime) }}</td>
             <td>{{ item.parkingDuration }}</td>
             <td class="actions">
               <button @click="handleViewDetail(item)" class="btn-link">详情</button>
@@ -115,7 +115,7 @@
           <p><strong>ID：</strong>{{ currentDetail.id }}</p>
           <p><strong>车牌号：</strong>{{ currentDetail.licensePlate }}</p>
           <p><strong>入场记录ID：</strong>{{ currentDetail.entryRecordId }}</p>
-          <p><strong>出场时间：</strong>{{ currentDetail.exitTime }}</p>
+          <p><strong>出场时间：</strong>{{ formatTime(currentDetail.exitTime) }}</p>
           <p><strong>出场方式：</strong>{{ currentDetail.exitType === 'manual' ? '保安手动登记' : '自动识别出场' }}</p>
           <p><strong>停车时长：</strong>{{ currentDetail.parkingDuration }} 分钟</p>
         </div>
@@ -281,6 +281,12 @@ export default {
         temp: '临时入场'
       }
       return map[type] || type
+    },
+
+    // 格式化时间显示 (2026-04-22T20:50:25 -> 2026-04-22 20:50:25)
+    formatTime(timeStr) {
+      if (!timeStr) return '-'
+      return timeStr.replace('T', ' ')
     },
 
     // 查看详情

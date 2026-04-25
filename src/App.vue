@@ -13,6 +13,7 @@
         <router-link v-if="isAdmin" to="/users">用户管理</router-link>
         <router-link v-if="isAdmin" to="/vehicles">车辆管理</router-link>
         <router-link v-if="isAdmin" to="/parking/areas">区域管理</router-link>
+        <router-link v-if="isAdmin || isSecurity" to="/parking/area-status">区域状态</router-link>
         <router-link v-if="isAdmin" to="/reservations">预约管理</router-link>
 
         <!-- 保安专属菜单（也包含在管理员的入场出场中） -->
@@ -22,9 +23,12 @@
         <!-- 管理员专属菜单 - 通知管理 -->
         <router-link v-if="isAdmin" to="/notices">通知管理</router-link>
 
+        <!-- 管理员专属菜单 - 黑白名单管理 -->
+        <router-link v-if="isAdmin" to="/whitelist">黑白名单</router-link>
+
         <!-- 所有用户都可以查看自己的消息 -->
         <router-link to="/my-notices">
-          消息中心
+          我的通知
           <span v-if="unreadCount > 0" class="unread-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
         </router-link>
 

@@ -14,12 +14,14 @@ import UserList from '@/views/UserList.vue'
 import VehicleList from '@/views/VehicleList.vue'
 import MyVehicle from '@/views/MyVehicle.vue'
 import AreaList from '@/views/AreaList.vue'
+import AreaStatus from '@/views/AreaStatus.vue'
 import ReservationList from '@/views/ReservationList.vue'
 import MyReservation from '@/views/MyReservation.vue'
 import VehicleEntry from '@/views/VehicleEntry.vue'
 import VehicleExit from '@/views/VehicleExit.vue'
 import NoticeList from '@/views/NoticeList.vue'
 import MyNotice from '@/views/MyNotice.vue'
+import WhitelistManage from '@/views/WhitelistManage.vue'
 
 // 使用VueRouter插件
 Vue.use(VueRouter)
@@ -77,6 +79,13 @@ const router = new VueRouter({
       component: AreaList,
       meta: { requiresAuth: true, requiresAdmin: true }
     },
+    // 区域状态（保安/管理员）
+    {
+      path: '/parking/area-status',
+      name: 'AreaStatus',
+      component: AreaStatus,
+      meta: { requiresAuth: true }
+    },
     // 预约管理（管理员）
     {
       path: '/reservations',
@@ -118,6 +127,13 @@ const router = new VueRouter({
       name: 'MyNotice',
       component: MyNotice,
       meta: { requiresAuth: true }
+    },
+    // 黑白名单管理（管理员）
+    {
+      path: '/whitelist',
+      name: 'WhitelistManage',
+      component: WhitelistManage,
+      meta: { requiresAuth: true, requiresAdmin: true }
     },
     // 首页 - 重定向到用户信息页
     {

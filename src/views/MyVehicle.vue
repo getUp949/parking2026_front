@@ -137,11 +137,10 @@ export default {
     // 获取车辆类型显示文本
     getVehicleTypeText(type) {
       const typeMap = {
-        'small': '小型车',
-        'medium': '中型车',
-        'large': '大型车',
+        'car': '轿车',
         'suv': 'SUV',
-        'mpv': 'MPV'
+        'van': '面包车/商务车',
+        'other': '其他'
       }
       return typeMap[type] || type || '-'
     },

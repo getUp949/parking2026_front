@@ -50,12 +50,10 @@
         <div class="form-item">
           <label>车辆类型</label>
           <select v-model="form.vehicleType">
-            <option value="">请选择类型</option>
-            <option value="small">小型车</option>
-            <option value="medium">中型车</option>
-            <option value="large">大型车</option>
+            <option value="car">轿车</option>
             <option value="suv">SUV</option>
-            <option value="mpv">MPV</option>
+            <option value="van">面包车/商务车</option>
+            <option value="other">其他</option>
           </select>
         </div>
         
@@ -102,7 +100,7 @@ export default {
         vehicleBrand: '',
         vehicleModel: '',
         vehicleColor: '',
-        vehicleType: ''
+        vehicleType: 'other'
       },
       // 加载状态
       loading: false
@@ -129,7 +127,7 @@ export default {
             vehicleBrand: '',
             vehicleModel: '',
             vehicleColor: '',
-            vehicleType: ''
+            vehicleType: 'other'
           }
         }
       }

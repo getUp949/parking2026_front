@@ -43,7 +43,7 @@
         <!-- 创建时间 -->
         <div class="info-item">
           <label>注册时间：</label>
-          <span>{{ userInfo.createTime }}</span>
+          <span>{{ formatTime(userInfo.createTime) }}</span>
         </div>
         
         <!-- 操作按钮 -->
@@ -108,7 +108,13 @@ export default {
       }
       return roleMap[role] || role
     },
-    
+
+    // 格式化时间显示 (2026-04-22T20:50:25 -> 2026-04-22 20:50:25)
+    formatTime(timeStr) {
+      if (!timeStr) return '-'
+      return timeStr.replace('T', ' ')
+    },
+
     // 退出登录
     handleLogout() {
       if (!confirm('确定要退出登录吗？')) {

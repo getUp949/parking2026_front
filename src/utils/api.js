@@ -270,6 +270,71 @@ export function setDefaultVehicle(id) {
 }
 
 // 导出api实例，其他地方也可以直接使用
+// ============ 黑白名单管理模块 API ============
+
+/**
+ * 黑白名单列表
+ * @param {Object} params - 查询参数
+ * @param {string} params.listType - 名单类型：whitelist/blacklist（可选）
+ * @param {string} params.licensePlate - 车牌号关键字（可选，模糊搜索）
+ * @param {number} params.pageNum - 页码，默认1
+ * @param {number} params.pageSize - 每页条数，默认10
+ * @returns {Promise} 返回黑白名单列表和分页信息
+ */
+export function getWhitelistList(params) {
+  return api.get('/whitelist/list', { params })
+}
+
+/**
+ * 新增黑白名单
+ * @param {Object} data - 黑白名单数据
+ * @param {string} data.licensePlate - 车牌号（必填）
+ * @param {string} data.listType - 名单类型：whitelist/blacklist（必填）
+ * @param {string} data.reason - 原因（必填）
+ * @param {string} data.effectiveDate - 生效日期（必填），格式：YYYY-MM-DD
+ * @param {string} data.expireDate - 失效日期（必填，永久填 2099-12-31），格式：YYYY-MM-DD
+ * @param {number} data.status - 状态：1启用 0禁用（必填）
+ * @returns {Promise}
+ */
+export function addWhitelist(data) {
+  return api.post('/whitelist', data)
+}
+
+/**
+ * 更新黑白名单
+ * @param {number} id - 黑白名单ID
+ * @param {Object} data - 要更新的数据
+ * @param {string} data.licensePlate - 车牌号
+ * @param {string} data.listType - 名单类型：whitelist/blacklist
+ * @param {string} data.reason - 原因
+ * @param {string} data.effectiveDate - 生效日期
+ * @param {string} data.expireDate - 失效日期
+ * @param {number} data.status - 状态：1启用 0禁用
+ * @returns {Promise}
+ */
+export function updateWhitelist(id, data) {
+  return api.put(`/whitelist/${id}`, data)
+}
+
+/**
+ * 删除黑白名单
+ * @param {number} id - 黑白名单ID
+ * @returns {Promise}
+ */
+export function deleteWhitelist(id) {
+  return api.delete(`/whitelist/${id}`)
+}
+
+/**
+ * 更新黑白名单状态（启用/禁用）
+ * @param {number} id - 黑白名单ID
+ * @param {number} status - 状态：1启用 0禁用
+ * @returns {Promise}
+ */
+export function updateWhitelistStatus(id, status) {
+  return api.put(`/whitelist/${id}/status`, { status })
+}
+
 export default api
 
 // ============ 区域管理模块 API ============

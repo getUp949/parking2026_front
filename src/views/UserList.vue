@@ -14,6 +14,7 @@
         <option value="admin">管理员</option>
         <option value="security">保安</option>
         <option value="owner">业主</option>
+        <option value="visitor">访客</option>
       </select>
       <button @click="handleSearch" class="btn-search">搜索</button>
       <button @click="handleReset" class="btn-reset">重置</button>
@@ -63,7 +64,7 @@
               {{ item.status === 1 ? '正常' : '禁用' }}
             </span>
           </td>
-          <td>{{ item.createTime }}</td>
+          <td>{{ formatTime(item.createTime) }}</td>
           <td class="actions">
             <button @click="handleEdit(item)" class="btn-link">编辑</button>
             <button @click="handleToggleStatus(item)" class="btn-link">启用/禁用</button>
@@ -270,11 +271,18 @@ export default {
       const roleMap = {
         'admin': '管理员',
         'security': '保安',
-        'owner': '业主'
+        'owner': '业主',
+        'visitor': '访客'
       }
       return roleMap[role] || role
     },
-    
+
+    // 格式化时间显示 (2026-04-22T20:50:25 -> 2026-04-22 20:50:25)
+    formatTime(timeStr) {
+      if (!timeStr) return '-'
+      return timeStr.replace('T', ' ')
+    },
+
     // 新增用户
     handleAdd() {
       this.currentUser = null
@@ -465,6 +473,7 @@ export default {
 .role-admin { background-color: #f56c6c; }
 .role-security { background-color: #e6a23c; }
 .role-owner { background-color: #409eff; }
+.role-visitor { background-color: #909399; }
 
 /* 状态标签 */
 .status-tag {
