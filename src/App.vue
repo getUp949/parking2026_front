@@ -18,7 +18,9 @@
 
         <!-- 保安专属菜单（也包含在管理员的入场出场中） -->
         <router-link v-if="isAdmin || isSecurity" to="/vehicle/entry">车辆入场</router-link>
+        <router-link v-if="isAdmin || isSecurity" to="/vehicle/auto-entry">自动入场</router-link>
         <router-link v-if="isAdmin || isSecurity" to="/vehicle/exit">车辆出场</router-link>
+        <router-link v-if="isAdmin || isSecurity" to="/vehicle/auto-exit">自动出场</router-link>
 
         <!-- 管理员专属菜单 - 通知管理 -->
         <router-link v-if="isAdmin" to="/notices">通知管理</router-link>

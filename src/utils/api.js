@@ -491,6 +491,29 @@ export function completeReservation(id) {
 // ============ 车辆入场模块 API ============
 
 /**
+ * 模拟自动入场（multipart/form-data格式）
+ * @param {FormData} formData - 表单数据
+ * @param {Blob/File} formData.image - 图片文件
+ * @param {number} formData.areaId - 区域ID
+ * @param {string} formData.gateId - 道闸ID
+ * @param {string} [formData.entryType] - 入场类型（可选）
+ * @returns {Promise}
+ */
+export function autoEntry(formData) {
+  // 注意：不要手动设置 Content-Type，axios 会自动添加正确的 boundary
+  return api.post('/vehicle/entry/auto-entry', formData)
+}
+
+/**
+ * 自动出场识别
+ * @param {FormData} formData - 包含 image、areaId、gateId
+ * @returns {Promise}
+ */
+export function autoExit(formData) {
+  return api.post('/vehicle/entry/auto-exit', formData)
+}
+
+/**
  * 车辆入场登记
  * @param {Object} data - 入场数据
  * @param {string} data.licensePlate - 车牌号（必填）

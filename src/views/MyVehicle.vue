@@ -2,9 +2,10 @@
   <div class="my-vehicle-container">
     <h2>我的车辆</h2>
     
-    <!-- 添加车辆按钮 -->
-    <div class="toolbar">
+    <!-- 添加车辆按钮 - 只有限制：每位业主只能添加一辆车辆 -->
+    <div class="toolbar" v-if="vehicleList.length === 0">
       <button @click="handleAdd" class="btn-add">+ 添加车辆</button>
+      <span class="vehicle-limit-tip">每位业主最多可登记1辆车辆</span>
     </div>
     
     <!-- 车辆列表 -->
@@ -13,6 +14,7 @@
     <div v-else-if="vehicleList.length === 0" class="empty">
       <p>您还没有登记车辆</p>
       <button @click="handleAdd" class="btn-add">添加车辆</button>
+      <p class="vehicle-limit-tip">每位业主最多可登记1辆车辆</p>
     </div>
     
     <!-- 车辆卡片列表 -->
@@ -145,8 +147,12 @@ export default {
       return typeMap[type] || type || '-'
     },
     
-    // 添加车辆
+    // 添加车辆 - 每位业主只能添加一辆车辆
     handleAdd() {
+      if (this.vehicleList.length >= 1) {
+        alert('每位业主最多只能登记1辆车辆')
+        return
+      }
       this.currentVehicle = null
       this.isEdit = false
       this.showForm = true
@@ -228,6 +234,14 @@ export default {
 /* 工具栏 */
 .toolbar {
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.vehicle-limit-tip {
+  color: #909399;
+  font-size: 13px;
 }
 
 .btn-add {
@@ -262,6 +276,12 @@ export default {
 .empty p {
   color: #999;
   margin-bottom: 20px;
+}
+
+.empty .vehicle-limit-tip {
+  color: #909399;
+  font-size: 13px;
+  margin-top: 10px;
 }
 
 /* 车辆卡片列表 */

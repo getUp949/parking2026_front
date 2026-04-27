@@ -30,19 +30,8 @@
         <label>目标类型：</label>
         <select v-model="formData.targetType">
           <option value="all">全部</option>
-          <option value="owner">车主</option>
           <option value="security">保安</option>
-          <option value="area">区域</option>
         </select>
-      </div>
-
-      <div class="form-item" v-if="formData.targetType === 'area'">
-        <label>区域ID列表：</label>
-        <input
-          v-model="formData.targetAreaIds"
-          type="text"
-          placeholder="请输入区域ID，多个用逗号分隔"
-        />
       </div>
 
       <div class="form-item">
@@ -106,7 +95,6 @@ export default {
         content: '',
         noticeType: 'system',
         targetType: 'all',
-        targetAreaIds: '',
         priority: 2,
         expireTime: ''
       },
@@ -122,7 +110,6 @@ export default {
         content: this.noticeData.content || '',
         noticeType: this.noticeData.noticeType || 'system',
         targetType: this.noticeData.targetType || 'all',
-        targetAreaIds: this.noticeData.targetAreaIds || '',
         priority: this.noticeData.priority || 2,
         expireTime: this.noticeData.expireTime ? this.noticeData.expireTime.slice(0, 16) : ''
       }
@@ -158,11 +145,6 @@ export default {
       const submitData = { ...this.formData }
       if (submitData.expireTime) {
         submitData.expireTime = submitData.expireTime.replace('T', ' ') + ':00'
-      }
-
-      // 清空区域ID列表（如果目标类型是all）
-      if (submitData.targetType === 'all') {
-        submitData.targetAreaIds = ''
       }
 
       // 调用对应的API

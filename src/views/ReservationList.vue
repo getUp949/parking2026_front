@@ -59,9 +59,9 @@
           <td>{{ item.visitorPhone || '-' }}</td>
           <td>{{ item.ownerName || '-' }}</td>
           <td>{{ item.visitReason || '-' }}</td>
-          <td>{{ item.targetAreaId }}</td>
-          <td>{{ item.expectedStartTime }}</td>
-          <td>{{ item.expectedEndTime }}</td>
+          <td>{{ item.targetAreaName || item.targetAreaId || '-' }}</td>
+          <td>{{ formatTime(item.expectedStartTime) }}</td>
+          <td>{{ formatTime(item.expectedEndTime) }}</td>
           <td>
             <span class="status-tag" :class="'status-' + item.status">
               {{ getStatusText(item.status) }}
@@ -207,6 +207,12 @@ export default {
         5: '已超时'
       }
       return statusMap[status] || '未知'
+    },
+    
+    // 格式化时间显示 (2026-04-22T20:50:25 -> 2026-04-22 20:50:25)
+    formatTime(timeStr) {
+      if (!timeStr) return '-'
+      return timeStr.replace('T', ' ')
     },
     
     // 审批预约（通过/拒绝）

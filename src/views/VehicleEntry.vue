@@ -11,32 +11,9 @@
         <div class="form-row">
           <div class="form-item">
             <label>选择区域 <span class="required">*</span></label>
-            <select v-model="form.areaId" @change="handleAreaChange" required>
+            <select v-model="form.areaId" required>
               <option value="">请选择区域</option>
               <option v-for="a in areaList" :key="a.id" :value="a.id">{{ a.areaName }} ({{ a.areaCode }})</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 选择车位 -->
-        <div class="form-row">
-          <div class="form-item">
-            <label>选择车位 <span class="required">*</span></label>
-            <select v-model="form.spaceId" required :disabled="!form.areaId">
-              <option value="">请选择车位</option>
-              <option v-for="s in spaceList" :key="s.id" :value="s.id">
-                {{ s.spaceNumber }} ({{ s.position }})
-              </option>
-            </select>
-          </div>
-          
-          <!-- 入场类型 -->
-          <div class="form-item">
-            <label>入场类型 <span class="required">*</span></label>
-            <select v-model="form.entryType" required>
-              <option value="normal">普通入场</option>
-              <option value="reservation">预约入场</option>
-              <option value="temp">临时入场</option>
             </select>
           </div>
         </div>
@@ -54,12 +31,13 @@
             />
           </div>
           
-          <!-- 入场来源 -->
+          <!-- 入场类型 -->
           <div class="form-item">
-            <label>入场来源 <span class="required">*</span></label>
-            <select v-model="form.entrySource" required>
-              <option value="manual">手动登记</option>
-              <option value="auto">自动识别</option>
+            <label>入场类型 <span class="required">*</span></label>
+            <select v-model="form.entryType" required>
+              <option value="owner">业主车</option>
+              <option value="temp">临时车</option>
+              <option value="reservation">预约车</option>
             </select>
           </div>
         </div>
@@ -96,9 +74,9 @@
         />
         <select v-model="searchParams.entryType">
           <option value="">全部类型</option>
-          <option value="normal">普通入场</option>
-          <option value="reservation">预约入场</option>
-          <option value="temp">临时入场</option>
+          <option value="owner">业主车</option>
+          <option value="temp">临时车</option>
+          <option value="reservation">预约车</option>
         </select>
         <button @click="handleSearch" class="btn-search">搜索</button>
       </div>
@@ -110,11 +88,9 @@
             <th>ID</th>
             <th>车牌号</th>
             <th>区域</th>
-            <th>车位</th>
             <th>入场时间</th>
             <th>入场类型</th>
             <th>来源</th>
-            <th>验证状态</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -123,21 +99,14 @@
             <td>{{ item.id }}</td>
             <td>{{ item.licensePlate }}</td>
             <td>{{ item.areaId }}</td>
-            <td>{{ item.spaceId }}</td>
-            <td>{{ item.entryTime }}</td>
+            <td>{{ formatTime(item.entryTime) }}</td>
             <td>
-              <span class="type-tag" :class="'type-' + item.entryType">
+              <span class="type-tag" :class="'type-' + item.entryType" style="color: #333;">
                 {{ getEntryTypeText(item.entryType) }}
               </span>
             </td>
             <td>{{ item.entrySource === 'manual' ? '手动' : '自动' }}</td>
-            <td>
-              <span class="verify-tag" :class="item.isVerified === 1 ? 'verified' : 'unverified'">
-                {{ item.isVerified === 1 ? '已验证' : '未验证' }}
-              </span>
-            </td>
             <td class="actions">
-              <button @click="handleVerify(item)" class="btn-link">验证</button>
               <button @click="handleViewDetail(item)" class="btn-link">详情</button>
             </td>
           </tr>
@@ -159,30 +128,6 @@
       <div v-if="tableData.length === 0 && !loading" class="empty-tip">暂无入场记录</div>
     </div>
 
-    <!-- 验证弹窗 -->
-    <div v-if="showVerifyModal" class="modal">
-      <div class="modal-content">
-        <h3>验证入场记录</h3>
-        <form @submit.prevent="handleVerifySubmit">
-          <div class="form-item">
-            <label>验证状态</label>
-            <select v-model="verifyForm.isVerified">
-              <option :value="1">已验证</option>
-              <option :value="0">未验证</option>
-            </select>
-          </div>
-          <div class="form-item">
-            <label>备注</label>
-            <textarea v-model="verifyForm.remark" rows="3" placeholder="请输入备注"></textarea>
-          </div>
-          <div class="form-btns">
-            <button type="button" @click="showVerifyModal = false" class="btn-cancel">取消</button>
-            <button type="submit" class="btn-submit">确认</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
     <!-- 详情弹窗 -->
     <div v-if="showDetailModal" class="modal">
       <div class="modal-content">
@@ -190,13 +135,9 @@
         <div class="detail-info">
           <p><strong>ID：</strong>{{ currentDetail.id }}</p>
           <p><strong>车牌号：</strong>{{ currentDetail.licensePlate }}</p>
-          <p><strong>区域ID：</strong>{{ currentDetail.areaId }}</p>
-          <p><strong>车位ID：</strong>{{ currentDetail.spaceId }}</p>
-          <p><strong>入场时间：</strong>{{ currentDetail.entryTime }}</p>
+          <p><strong>区域：</strong>{{ currentDetail.areaName || currentDetail.areaId }}</p>
+          <p><strong>入场时间：</strong>{{ formatTime(currentDetail.entryTime) }}</p>
           <p><strong>入场类型：</strong>{{ getEntryTypeText(currentDetail.entryType) }}</p>
-          <p><strong>入场来源：</strong>{{ currentDetail.entrySource === 'manual' ? '手动登记' : '自动识别' }}</p>
-          <p><strong>验证状态：</strong>{{ currentDetail.isVerified === 1 ? '已验证' : '未验证' }}</p>
-          <p><strong>备注：</strong>{{ currentDetail.remark || '-' }}</p>
         </div>
         <div class="form-btns">
           <button @click="showDetailModal = false" class="btn-cancel">关闭</button>
@@ -213,9 +154,7 @@ import {
   getEntryList, 
   getEntryDetail, 
   recognizePlate, 
-  updateEntryVerify,
-  getAreaList,
-  getAvailableSpaces
+  getAreaList
 } from '@/utils/api'
 
 export default {
@@ -224,13 +163,10 @@ export default {
     return {
       form: {
         areaId: '',
-        spaceId: '',
         licensePlate: '',
-        entryType: 'normal',
-        entrySource: 'manual'
+        entryType: 'owner'
       },
       areaList: [],
-      spaceList: [],
       recognizedVehicle: null,
       loading: false,
       
@@ -242,13 +178,6 @@ export default {
       },
       tableData: [],
       total: 0,
-      
-      showVerifyModal: false,
-      verifyForm: {
-        id: null,
-        isVerified: 1,
-        remark: ''
-      },
       
       showDetailModal: false,
       currentDetail: {}
@@ -275,29 +204,6 @@ export default {
         })
         .catch(err => {
           console.error('获取区域列表失败', err)
-        })
-    },
-
-    // 区域变更时获取可用车位列表
-    handleAreaChange() {
-      this.form.spaceId = ''
-      this.spaceList = []
-      
-      if (this.form.areaId) {
-        this.fetchSpaceList(this.form.areaId)
-      }
-    },
-
-    // 获取可用车位列表
-    fetchSpaceList(areaId) {
-      getAvailableSpaces(areaId)
-        .then(res => {
-          if (res.code === 200) {
-            this.spaceList = res.data || []
-          }
-        })
-        .catch(err => {
-          console.error('获取车位列表失败', err)
         })
     },
 
@@ -329,8 +235,7 @@ export default {
     // 提交入场登记
     handleEntry() {
       // 验证必填字段
-      if (!this.form.areaId || !this.form.spaceId || 
-          !this.form.licensePlate || !this.form.entryType || !this.form.entrySource) {
+      if (!this.form.areaId || !this.form.licensePlate || !this.form.entryType) {
         alert('请填写所有必填字段')
         return
       }
@@ -341,10 +246,8 @@ export default {
         licensePlate: this.form.licensePlate,
         vehicleId: this.form.vehicleId || null,
         reservationId: this.form.reservationId || null,
-        spaceId: this.form.spaceId,
         areaId: this.form.areaId,
-        entryType: this.form.entryType,
-        entrySource: this.form.entrySource
+        entryType: this.form.entryType
       })
         .then(res => {
           if (res.code === 200) {
@@ -367,13 +270,10 @@ export default {
     handleReset() {
       this.form = {
         areaId: '',
-        spaceId: '',
         licensePlate: '',
-        entryType: 'normal',
-        entrySource: 'manual'
+        entryType: 'owner'
       }
       this.recognizedVehicle = null
-      this.spaceList = []
     },
 
     // 获取入场记录列表
@@ -406,41 +306,17 @@ export default {
     // 获取入场类型文本
     getEntryTypeText(type) {
       const map = {
-        normal: '普通入场',
-        reservation: '预约入场',
-        temp: '临时入场'
+        owner: '业主车',
+        temp: '临时车',
+        reservation: '预约车'
       }
       return map[type] || type
     },
 
-    // 打开验证弹窗
-    handleVerify(item) {
-      this.verifyForm = {
-        id: item.id,
-        isVerified: item.isVerified || 0,
-        remark: ''
-      }
-      this.showVerifyModal = true
-    },
-
-    // 提交验证
-    handleVerifySubmit() {
-      updateEntryVerify(this.verifyForm.id, {
-        isVerified: this.verifyForm.isVerified,
-        remark: this.verifyForm.remark
-      })
-        .then(res => {
-          if (res.code === 200) {
-            alert('验证状态更新成功')
-            this.showVerifyModal = false
-            this.fetchEntryList()
-          } else {
-            alert(res.message || '更新失败')
-          }
-        })
-        .catch(err => {
-          alert(err.message || '更新失败')
-        })
+    // 格式化时间显示 (2026-04-22T20:50:25 -> 2026-04-22 20:50:25)
+    formatTime(timeStr) {
+      if (!timeStr) return '-'
+      return timeStr.replace('T', ' ')
     },
 
     // 查看详情
@@ -639,35 +515,20 @@ export default {
   padding: 2px 8px;
   border-radius: 3px;
   font-size: 12px;
-  color: white;
+  color: #333 !important;
+  display: inline-block;
 }
 
-.type-normal {
-  background-color: #409eff;
+.type-owner {
+  background-color: #409eff !important;
 }
 
 .type-reservation {
-  background-color: #e6a23c;
+  background-color: #e6a23c !important;
 }
 
 .type-temp {
-  background-color: #909399;
-}
-
-/* 验证标签 */
-.verify-tag {
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 12px;
-  color: white;
-}
-
-.verified {
-  background-color: #67c23a;
-}
-
-.unverified {
-  background-color: #f56c6c;
+  background-color: #909399 !important;
 }
 
 /* 操作按钮 */

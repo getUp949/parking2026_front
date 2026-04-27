@@ -142,8 +142,14 @@ export default {
       // 设置加载状态
       this.loading = true
       
+      // 添加role字段 - 业主注册固定为owner
+      const requestData = {
+        ...this.form,
+        role: 'owner'
+      }
+      
       // 调用注册API
-      register(this.form)
+      register(requestData)
         .then(res => {
           // code为200表示成功
           if (res.code === 200) {

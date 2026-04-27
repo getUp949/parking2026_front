@@ -22,6 +22,8 @@ import VehicleExit from '@/views/VehicleExit.vue'
 import NoticeList from '@/views/NoticeList.vue'
 import MyNotice from '@/views/MyNotice.vue'
 import WhitelistManage from '@/views/WhitelistManage.vue'
+import AutoEntrySimulation from '@/views/AutoEntrySimulation.vue'
+import AutoExitSimulation from '@/views/AutoExitSimulation.vue'
 
 // 使用VueRouter插件
 Vue.use(VueRouter)
@@ -105,6 +107,20 @@ const router = new VueRouter({
       path: '/vehicle/entry',
       name: 'VehicleEntry',
       component: VehicleEntry,
+      meta: { requiresAuth: true }
+    },
+    // 自动入场模拟（保安/管理员）
+    {
+      path: '/vehicle/auto-entry',
+      name: 'AutoEntrySimulation',
+      component: AutoEntrySimulation,
+      meta: { requiresAuth: true }
+    },
+    // 自动出场模拟（保安/管理员）
+    {
+      path: '/vehicle/auto-exit',
+      name: 'AutoExitSimulation',
+      component: AutoExitSimulation,
       meta: { requiresAuth: true }
     },
     // 车辆出场管理（保安/管理员）

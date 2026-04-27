@@ -8,26 +8,15 @@
       
       <form @submit.prevent="handleExit" class="exit-form">
         <!-- 车牌号 -->
-        <div class="form-row">
-          <div class="form-item">
-            <label>车牌号 <span class="required">*</span></label>
-            <input 
-              v-model="form.licensePlate" 
-              type="text" 
-              placeholder="请输入车牌号，如：京A12345"
-              required
-              @blur="handleCheck"
-            />
-          </div>
-          
-          <!-- 出场方式 -->
-          <div class="form-item">
-            <label>出场方式 <span class="required">*</span></label>
-            <select v-model="form.exitType" required>
-              <option value="manual">手动登记出场</option>
-              <option value="auto">自动识别出场</option>
-            </select>
-          </div>
+        <div class="form-item">
+          <label>车牌号 <span class="required">*</span></label>
+          <input 
+            v-model="form.licensePlate" 
+            type="text" 
+            placeholder="请输入车牌号，如：京A12345"
+            required
+            @blur="handleCheck"
+          />
         </div>
 
         <!-- 在场记录信息（查询后显示） -->
@@ -142,8 +131,7 @@ export default {
     return {
       // 登记表单数据
       form: {
-        licensePlate: '',
-        exitType: 'manual'
+        licensePlate: ''
       },
       // 当前在场记录
       activeEntry: null,
@@ -202,8 +190,8 @@ export default {
     // 提交出场登记
     handleExit() {
       // 验证必填字段
-      if (!this.form.licensePlate || !this.form.exitType) {
-        alert('请填写所有必填字段')
+      if (!this.form.licensePlate) {
+        alert('请填写车牌号')
         return
       }
 
@@ -217,7 +205,7 @@ export default {
       vehicleExit({
         entryRecordId: this.activeEntry.id,
         licensePlate: this.form.licensePlate,
-        exitType: this.form.exitType
+        exitType: 'manual'
       })
         .then(res => {
           if (res.code === 200) {
@@ -240,8 +228,7 @@ export default {
     // 重置表单
     handleReset() {
       this.form = {
-        licensePlate: '',
-        exitType: 'manual'
+        licensePlate: ''
       }
       this.activeEntry = null
     },
