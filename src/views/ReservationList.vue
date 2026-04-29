@@ -221,10 +221,7 @@ export default {
         return
       }
       
-      const formData = new FormData()
-      formData.append('status', action)
-      
-      approveReservation(reservation.id, formData)
+      approveReservation(reservation.id, { status: action })
         .then(res => {
           if (res.code === 200) {
             alert('操作成功')

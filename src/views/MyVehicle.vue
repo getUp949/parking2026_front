@@ -52,14 +52,6 @@
         </div>
         
         <div class="card-footer">
-          <!-- 未设置为默认车辆时显示设为默认按钮 -->
-          <button 
-            v-if="item.isDefault !== 1 && item.status === 1" 
-            @click="handleSetDefault(item)"
-            class="btn-link"
-          >
-            设为默认
-          </button>
           <!-- 审核通过后可以编辑 -->
           <button 
             v-if="item.status === 1" 
@@ -85,7 +77,7 @@
 </template>
 
 <script>
-import { getMyVehicles, setDefaultVehicle, deleteVehicle } from '@/utils/api'
+import { getMyVehicles, deleteVehicle } from '@/utils/api'
 import VehicleForm from './VehicleForm.vue'
 
 export default {
@@ -175,26 +167,6 @@ export default {
     handleFormSuccess() {
       this.closeForm()
       this.fetchMyVehicles()
-    },
-    
-    // 设为默认车辆
-    handleSetDefault(vehicle) {
-      if (!confirm(`确定要将 "${vehicle.licensePlate}" 设为默认车辆吗？`)) {
-        return
-      }
-      
-      setDefaultVehicle(vehicle.id)
-        .then(res => {
-          if (res.code === 200) {
-            alert('设置成功')
-            this.fetchMyVehicles()
-          } else {
-            alert(res.message || '设置失败')
-          }
-        })
-        .catch(err => {
-          alert(err.message || '设置失败')
-        })
     },
     
     // 删除车辆
